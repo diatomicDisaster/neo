@@ -1,4 +1,4 @@
-# NEO V0.1
+# **NEO V0.1**
 
 NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "on-the-fly" using the fourth-order Runge-Kutta time integration method. The bodies are defined systematically in an '.inp' input file using a range of dynamic parameters, an example is given below:
 
@@ -26,6 +26,8 @@ END
 
 1. Go to https://github.com/diatomicDisaster/Planets, click the green button on the right hand side "Clone or Download".
 2. To download the files directly, click "Download ZIP", or to install using git:
+
 ```git clone https://github.com/diatomicDisaster/Planets.git
 ```
+
 3. The following Python libararies are required: `numpy`, `matplotlib` and `argparse`, and [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).

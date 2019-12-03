@@ -1,0 +1,30 @@
+BODY 
+name: Earth
+mass: 1 mE
+position: 1 0
+velocity: 0 2*pi/365
+polar
+relative: Sun
+colour: #0099ff
+END
+
+BODY
+name: Moon
+mass: 0.01 mE
+position: 0.0026 0
+velocity: 0 0.0026*2*pi/28
+relative: Earth
+END
+
+BODY
+name: Sun
+mass: 332946
+position: 0 0
+velocity: 0 0
+colour: #ffd500
+END
+   
+SIMULATION
+dt: 0.5 day
+duration: 0.5 year
+END

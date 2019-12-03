@@ -27,7 +27,8 @@ END
 1. Go to https://github.com/diatomicDisaster/Planets, click the green button on the right hand side "Clone or Download".
 2. To download the files directly, click "Download ZIP", or to install using git:
 
-```git clone https://github.com/diatomicDisaster/Planets.git
+```
+git clone https://github.com/diatomicDisaster/Planets.git
 ```
 
 3. The following Python libararies are required: `numpy`, `matplotlib` and `argparse`, and [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).

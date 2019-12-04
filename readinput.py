@@ -8,11 +8,13 @@ checks = [False for i in cases]
 convert = {
         "mE"  : 1.,
         "mS"  : 332946.,
+        "kg"  : 5.972e24,
         "year": 365.,
         "yr"  : 365.,
         "day" : 1.,
         "dy"  : 1.,
         "hour": 1./24,
+        "hrs" : 1./24,
         "hr"  : 1./24
         }
 

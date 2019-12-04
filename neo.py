@@ -10,6 +10,12 @@ import argparse
 from rungekutta import make_step
 from readinput import read_input
 
+int8 = '8d'
+sci2 = '.2e'
+sci8 = '.8e'
+ws6  = '      '
+ws4  = '    '
+
 #-----------------------------------------------------------------------------
 # First we ask the user for input and output files, and take various measures
 # to ensure these are in fact valid files. Once the files have been opened we
@@ -41,6 +47,8 @@ while (len(checkIn) < 2) or (checkIn[1] != "inp"):
 if not path.exists(inName):
     sys.exit("Could not find the input file, is it in the working directory?")
 inFile = open(inName, 'r')
+stepFile = open("{0}.steps".format(checkIn[0]), 'w+')
+
 
 # Ask user for output file. If no file is given, we can output to the console
 # but ask first, if the answer is no, ask for output file again. If an output
@@ -62,17 +70,16 @@ while not termOut:
     else:
         checkOut = outName.split(sep='.')
         if (len(checkOut) < 2) or (checkOut[1] != "out"):
-            print("Not a valid output file type, must be *.out!\n")
+            print("Not a valid output file type, must be *.out!\n", file=sys.stdout)
             continue
         elif not path.exists(outName):
-            print("Could not find the output file... Created automatically.")
+            print("Could not find the output file... Created automatically.", file=sys.stdout)
         outFile = open(outName, 'w+')
         break
 
 # Read the input file and create the bodies
 bods, timeStep, nSteps = read_input(inFile, outFile)
 
-sci2 = '.2e'
 print("\nPreparing the simulation for the following bodies:", file=outFile)
 for bod in bods:
         print("\n - {1} with..."
@@ -90,10 +97,25 @@ masses      = [bod.mass for bod in bods]
 posSteps[0] = [bod.pos for bod in bods]
 velSteps[0] = [bod.vel for bod in bods]
 
+print("\nBeginning forward time steps...", file=outFile)
+print(*[bod.name for bod in bods], file=stepFile)
 for step in range(1, nSteps):
+    print("\rStep {0}/{1}".format(step+1, nSteps), end='', file=outFile)
     posSteps[step], velSteps[step] = make_step(timeStep, nBods, masses, 
                                                posSteps[step-1], 
                                                velSteps[step-1])
+    print("{1:{0}}".format(int8, step), end=ws6, file=stepFile)
+    for i, bodPos in enumerate(posSteps[step]):
+        bodVel = velSteps[step][i]
+        bodStr = "{2:{0}}{1}{3:{0}}{1}{4:{0}}{1}{5:{0}}".format(sci8, ws4, *bodPos, *bodVel)
+        print(bodStr, end=ws6, file=stepFile)
+    print('', file=stepFile)
+
+stepFile.close()
+    
+print("\n\nSimulation complete, step file closed."
+      "\n\nBeginning animation...", file=outFile)
+
 
 window = [[-2, 2], [-2, 2]]
 fig  = plt.figure(figsize=[6, 6])
@@ -110,7 +132,8 @@ def ani_init():
         dot.set_data([], [])
     return dots
 
-def animate(i):
+def animate(i, nSteps):
+    print("\rDrawing frame {0}/{1}".format(i+1, nSteps), end='', file=outFile)
     frame = posSteps[i]
     xPosits = [i[0] for i in frame]
     yPosits = [i[1] for i in frame]
@@ -118,5 +141,9 @@ def animate(i):
         dot.set_data(xPosits[dNum], yPosits[dNum])
     return dots
 
-anim = ani.FuncAnimation(fig, animate, init_func=ani_init, frames=nSteps, interval=10, blit=True)
+anim = ani.FuncAnimation(fig, animate, init_func=ani_init, fargs=(nSteps,), frames=nSteps, interval=10, blit=True)
 anim.save('animated.mp4')
+
+print("\nAnimation complete, closing files.", file=outFile)
+outFile.close()
+inFile.close()

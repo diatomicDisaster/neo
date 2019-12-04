@@ -12,7 +12,7 @@ NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "o
 git clone https://github.com/diatomicDisaster/Planets.git
 ```
 
-3. The following Python libararies are required: `numpy`, `matplotlib` and `argparse`, and [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).
+3. The Python libararies `numpy` and `argparse` are required and optionally `matplotlib` if your input file contains the `VISUAL` flag ([more info](#visualisation)), these libraries [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).
 
 ### Example Input
 
@@ -81,4 +81,5 @@ python neo.py -i myinput.inp -o myoutput.out
 
 In addition to the output file, the program creates a ".steps" file. This file contains the position and velocity of each body at every time step. The first column of each row in the file gives the time step number, the next four columns give the x, y, v_x, v_y values for the first body, and each four columns thereafter represent further bodies. The order of the bodies is given at the top of the ".steps" file for reference.
 
-Lastly an ".mp4" animation is created if the input file contains the single line flag `VISUAL`, this is poorly implemented at present and this is not advised for simulations with > 1000 time steps.
+#### Visualisation
+An ".mp4" animation can also be rendered using [`matplotlib.animation`](https://matplotlib.org/3.1.1/api/animation_api.html) if the input file contains the single line flag `VISUAL`, this is poorly implemented at present and this is not advised for simulations with > 1000 time steps.

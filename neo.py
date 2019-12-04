@@ -2,8 +2,6 @@
 from os import path
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as ani
 import argparse
 
 # orBits Libraries
@@ -78,7 +76,7 @@ while not termOut:
         break
 
 # Read the input file and create the bodies
-bods, timeStep, nSteps = read_input(inFile, outFile)
+bods, timeStep, nSteps, doVis = read_input(inFile, outFile)
 
 print("\nPreparing the simulation for the following bodies:", file=outFile)
 for bod in bods:
@@ -116,34 +114,38 @@ stepFile.close()
 print("\n\nSimulation complete, step file closed."
       "\n\nBeginning animation...", file=outFile)
 
-
-window = [[-2, 2], [-2, 2]]
-fig  = plt.figure(figsize=[6, 6])
-ax   = plt.axes(xlim=window[0], ylim=window[1])
-dot, = ax.plot([], [], '.')
-
-dots = []
-for i in range(nBods):
-    dObj = ax.plot([], [], marker='o', color=colours[i], ls='none')[0]
-    dots.append(dObj)
+if doVis:
+    import matplotlib.pyplot as plt
+    import matplotlib.animation as ani
+    window = [[-2, 2], [-2, 2]]
+    fig  = plt.figure(figsize=[6, 6])
+    ax   = plt.axes(xlim=window[0], ylim=window[1])
+    dot, = ax.plot([], [], '.')
     
-def ani_init():
-    for dot in dots:
-        dot.set_data([], [])
-    return dots
-
-def animate(i, nSteps):
-    print("\rDrawing frame {0}/{1}".format(i+1, nSteps), end='', file=outFile)
-    frame = posSteps[i]
-    xPosits = [i[0] for i in frame]
-    yPosits = [i[1] for i in frame]
-    for dNum, dot in enumerate(dots):
-        dot.set_data(xPosits[dNum], yPosits[dNum])
-    return dots
-
-anim = ani.FuncAnimation(fig, animate, init_func=ani_init, fargs=(nSteps,), frames=nSteps, interval=10, blit=True)
-anim.save('animated.mp4')
-
-print("\nAnimation complete, closing files.", file=outFile)
+    dots = []
+    for i in range(nBods):
+        dObj = ax.plot([], [], marker='o', color=colours[i], ls='none')[0]
+        dots.append(dObj)
+        
+    def ani_init():
+        for dot in dots:
+            dot.set_data([], [])
+        return dots
+    
+    def animate(i, nSteps):
+        print("\rDrawing frame {0}/{1}".format(i+1, nSteps), end='', file=outFile)
+        frame = posSteps[i]
+        xPosits = [i[0] for i in frame]
+        yPosits = [i[1] for i in frame]
+        for dNum, dot in enumerate(dots):
+            dot.set_data(xPosits[dNum], yPosits[dNum])
+        return dots
+    
+    anim = ani.FuncAnimation(fig, animate, init_func=ani_init, fargs=(nSteps,),
+                            frames=nSteps, interval=10, blit=True)
+    anim.save('animated.mp4')
+    
+    print("\nAnimation complete, closing files.", file=outFile)
+    
 outFile.close()
 inFile.close()

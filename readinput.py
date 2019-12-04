@@ -147,6 +147,7 @@ def read_input(inFile, outFile):
           "\nReading input from '{}'"
             .format(inFile.name), file=outFile) 
     
+    doVis = False
     bods = []
     for line in inFile:
         # Strip trailing, leading whitespace from line, skip if empty
@@ -178,6 +179,7 @@ def read_input(inFile, outFile):
                     nSteps   = round(duration/timeStep)
         elif line == "VISUAL":
             checks[cases.index(line)] = True
+            doVis = True
             continue
     
     missing = [i for i, x in enumerate(checks) if not x]
@@ -203,4 +205,4 @@ def read_input(inFile, outFile):
     else:
         print()
                     
-    return bods, timeStep, nSteps
+    return bods, timeStep, nSteps, doVis

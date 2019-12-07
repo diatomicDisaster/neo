@@ -29,6 +29,8 @@ python neo.py -i myinput.inp -o myoutput.out
 ```
 If the output file does not exist the program will create it automatically, if no output file is specified then the option will be available to write output to the console. In addition to the output file where messages are written, the program also creates a ".steps" file, which contains the position and velocity of each body at each time step.
 
+The final command line argument is an optional flag `-p`. When used, the computation of gravitational interactions at each time step is performed in parallel using [Numba](http://numba.pydata.org/).
+
 #### Defining Bodies for the Simulation
 The flag `BODY` is used to tell the program that the subsequent lines define a new body for the simulation, the end of the body is marked with the flag `END`. Parameters are specified using a keyword, followed by a colon. The following parameters are available (required ones indicated by an asterisk):
 
@@ -73,7 +75,7 @@ END
 ```
 
 ### Output
-The program provides updates and writes error messages to the [output file specified when the program is run](#example-input).
+The program provides updates and writes error messages to the [output file specified at runtime](#example-input).
 
 ```
 python neo.py -i myinput.inp -o myoutput.out

@@ -40,7 +40,7 @@ The flag `BODY` is used to tell the program that the subsequent lines define a n
 |*`velocity`|The initial velocity of the body, given as two values separated by a space that specify a vector quantity, followed by units in the form `km/s`, where `km` and `s` can be replaced with any valid units for position and time respectively, default `au/dy`. Can be given in Cartesian (x, y) or polar form (r, ϕ) (see `polar` keyword below), and can also be defined relative to any other body (see `relative` keyword).|
 |`polar`|Additional keyword required only when the position and velocity are defined in polar coordinates, note this keyword does not require a colon ":".|
 |`relative`|An optional keyword used to define one body's initial position and velocity relative to another body in the simulation (useful for moons). If the keyword is not present the body is assumed to be defined relative to the origin. Note that the order in which the bodies are given in the input file is not important, moons can be specified before their host planets.|
-|`colour`|An optional keyword that specifies the colour to use for this body in the visualisation, valid values are any [`matplotlib` colour](https://matplotlib.org/2.0.2/api/colors_api.html).|
+|`colour`|An optional keyword that specifies the colour to use for this body in the visualisation, valid values are any html hex colour codes.|
 
 An arbitrary number of bodies can be specified in any order, the order in which the parameters are given is also not important, however spaces between keywords and values *is important*. An example definition for an Earth analog defined relative to another body ("Sun") is given below:
 

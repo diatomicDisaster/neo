@@ -36,8 +36,8 @@ The flag `BODY` is used to tell the program that the subsequent lines define a n
 |:---:|:---|
 |*`name`|The name of the body, purely for the sanity of the user.| 
 |*`mass`|The mass of the body, given as a value and units separated by a space. Currently the accepted units are: Earth masses `mE`, Solar masses `mS`, Kilograms `kg`. If no units are given `mE` is assumed.|
-|*`position`|The initial position of the body, given as two values separated by a space that specify a vector quantity. Can be given in Cartesian (x, y) or polar form (r, ϕ) (see `polar` keyword below), and can also be defined relative to any other body (see `relative` keyword).|
-|*`velocity`|The initial velocity of the body, given as two values separated by a space that specify a vector quantity. Can be given in Cartesian (x, y) or polar form (r, ϕ) (see `polar` keyword below), and can also be defined relative to any other body (see `relative` keyword).|
+|*`position`|The initial position of the body, given as two values separated by a space that specify a vector quantity, followed by units. Currently allowed units for position are `au`, `km`, `m`, default is `au`. Can be given in Cartesian (x, y) or polar form (r, ϕ) (see `polar` keyword below), and can also be defined relative to any other body (see `relative` keyword).|
+|*`velocity`|The initial velocity of the body, given as two values separated by a space that specify a vector quantity, followed by units in the form `km/s`, where `km` and `s` can be replaced with any valid units for position and time respectively, default `au/dy`. Can be given in Cartesian (x, y) or polar form (r, ϕ) (see `polar` keyword below), and can also be defined relative to any other body (see `relative` keyword).|
 |`polar`|Additional keyword required only when the position and velocity are defined in polar coordinates, note this keyword does not require a colon ":".|
 |`relative`|An optional keyword used to define one body's initial position and velocity relative to another body in the simulation (useful for moons). If the keyword is not present the body is assumed to be defined relative to the origin. Note that the order in which the bodies are given in the input file is not important, moons can be specified before their host planets.|
 |`colour`|An optional keyword that specifies the colour to use for this body in the visualisation, valid values are any [`matplotlib` colour](https://matplotlib.org/2.0.2/api/colors_api.html).|
@@ -48,8 +48,8 @@ An arbitrary number of bodies can be specified in any order, the order in which 
 BODY 
 name: Earth
 mass: 1 mE
-position: 1 0
-velocity: 0 2*pi/365
+position: 1 0 au
+velocity: 0 2*pi/365 au/dy
 polar
 relative: Sun
 colour: #0099ff
@@ -60,7 +60,7 @@ The flag `SIMULATION` is used to tell the program that subsequent lines define t
 
 |`keyword`|Description|
 |:---:|:---|
-|`dt`|The time step for the simulation, specified with a value and units. Currently accepted units are: days (`days` or `dy`), years (`years` or `yr`) and hours (`hours`, `hrs`, or `hr`). The simulation is accurate to fourth order in time.
+|`dt`|The time step for the simulation, specified with a value and units. Currently accepted units are: days (`days` or `dy`), years (`years` or `yr`), hours (`hours`, `hrs`, or `hr`) and seconds (`seconds`, `secs`, or `s`). The simulation is accurate to fourth order in time.
 |`duration`|The duration of the simulation, specified with a value and units - as above.|
 
 An example simulation with a timestep of 12 hours and a duration of 182.5 days is shown below.

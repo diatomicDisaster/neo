@@ -1,11 +1,10 @@
 # Public Python Libraries
 from os import path
 import sys
-import numpy as np
+from numpy import array, absolute, amax, zeros, log, log10
 import argparse
 
 # orBits Libraries
-from rungekutta import make_step
 from readinput import read_input
 
 int8 = '8d'
@@ -27,16 +26,20 @@ parse = argparse.ArgumentParser(description=
         "\n\nTo see what the input file should look like, head on over to the docs:",
         formatter_class=argparse.RawTextHelpFormatter)
 
-parse.add_argument("-i", "--infile", default=None, type=str, help="Specify the input file, '.inp' suffix.")
-parse.add_argument("-o", "--outfile", default=None, type=str, help=
-          "Specify the output file, '.out' suffix."
-        "\nIf not given, output can be written to console.")
+parse.add_argument('-i', '--infile', default=None, type=str, help=
+                   "Specify the input file, '.inp' suffix.")
+parse.add_argument('-o', '--outfile', default=None, type=str, help=
+                   "Specify the output file, '.out' suffix."
+                   "\nIf not given, output can be written to console.")
+parse.add_argument('-p', action='store_true', help=
+                   "Perform computations in parallel (requires Numba).")
+
 args = parse.parse_args()
 
 # Ask user for input file, check it is valid type and exists, then open.
 inName = args.infile
 if not inName:
-    sys.exit("No input file given, use 'python orbits.py -h' for help.")
+    sys.exit("No input file given, use 'python neo.py -h' for help.")
 checkIn = inName.split(sep='.')
 while (len(checkIn) < 2) or (checkIn[1] != "inp"):
     print("Not a valid input file type, must be *.inp!\n")
@@ -62,7 +65,7 @@ while not termOut:
             outFile = sys.stdout
             break
         elif yn in ["N", "n"]:
-            print("We need an output file :(", file=sys.stdout)
+            print("We need an output file.", file=sys.stdout)
             sys.exit()
         
     else:
@@ -75,8 +78,42 @@ while not termOut:
         outFile = open(outName, 'w+')
         break
 
+print("\n"
+    "\n                   @@@@@                                                    "
+    "\n                 @@@@@@@@@                         #########                "
+    "\n                 @@@@@@@@@                      OOOO         ######         "
+    "\n          ######   @@@@@            EEEE      OO    OO             ###      "
+    "\n       #####              NN     EEE          0O     OO               ##    "
+    "\n     ###         NNNN      NN     EE  EEEE     0O     OO                ##  "
+    "\n   ###            NN NNN    NN     EEE          0O     OO               ### "
+    "\n  ###              NN   NNN  NN     EE   EEEE     0OOOO                 ### "
+    "\n  ###               NN     NNNNN      EEE                             ####  "
+    "\n   ####              NN                        @@@@@@@              #####   "
+    "\n     #####                                   @@@@@@@@@@@        #######     "
+    "\n         #####                              @@@@@@@@@@@@@   #######         "
+    "\n              ############                  @@@@@@@@@@@@@                   "
+    "\n                                             @@@@@@@@@@@                    "
+    "\n                                               @@@@@@@                      "
+    "\n"
+    "\n                             Wilfrid Somogyi                                "
+    "\n                     github.com/diatomicDisaster/neo                        "
+    "\n",
+    file=outFile)
+
+
+if args.p:
+    from rungekutta import make_step_par as make_step
+    try:
+        from numba import njit, prange
+        print("Parallel execution enabled.", file=outFile)
+    except:
+        print("Error: Argument '-p' given, but cannot find numba.", file=outFile)
+        sys.exit()
+else:
+    from rungekutta import make_step
+
 # Read the input file and create the bodies
-bods, timeStep, nSteps, doVis = read_input(inFile, outFile)
+bods, timeStep, nSteps, doVis, figsize, scale = read_input(inFile, outFile)
 
 print("\nPreparing the simulation for the following bodies:", file=outFile)
 for bod in bods:
@@ -87,22 +124,19 @@ for bod in bods:
               .format(sci2, bod.name, bod.mass, *bod.pos, *bod.vel), file=outFile)
         
 nBods = len(bods)
-colours = [bod.c for bod in bods]
 
-posSteps = np.zeros((nSteps, nBods, 2))
-velSteps = np.zeros((nSteps, nBods, 2))
-masses      = [bod.mass for bod in bods]
-posSteps[0] = [bod.pos for bod in bods]
-velSteps[0] = [bod.vel for bod in bods]
+posSteps = zeros((nSteps, nBods, 2))
+velSteps = zeros((nSteps, nBods, 2))
+masses      = array([bod.mass for bod in bods])
+posSteps[0] = array([bod.pos for bod in bods])
+velSteps[0] = array([bod.vel for bod in bods])
 
 print("\nBeginning forward time steps...", file=outFile)
 print(*[bod.name for bod in bods], file=stepFile)
 for step in range(1, nSteps):
-    print("\rStep {0}/{1}".format(step+1, nSteps), end='', file=outFile)
     posSteps[step], velSteps[step] = make_step(timeStep, nBods, masses, 
                                                posSteps[step-1], 
                                                velSteps[step-1])
-    print("{1:{0}}".format(int8, step), end=ws6, file=stepFile)
     for i, bodPos in enumerate(posSteps[step]):
         bodVel = velSteps[step][i]
         bodStr = "{2:{0}}{1}{3:{0}}{1}{4:{0}}{1}{5:{0}}".format(sci8, ws4, *bodPos, *bodVel)
@@ -111,20 +145,31 @@ for step in range(1, nSteps):
 
 stepFile.close()
     
-print("\n\nSimulation complete, step file closed."
-      "\n\nBeginning animation...", file=outFile)
+print("Simulation complete, step file closed.", file=outFile)
+
+if scale == 'log':
+    posSteps = log10(posSteps)
+elif scale == 'ln':
+    posSteps = log(posSteps)
 
 if doVis:
+    print(  "Beginning animation, with:"
+          "\n  Figure size = {0} inches".format(figsize), file=outFile)
     import matplotlib.pyplot as plt
     import matplotlib.animation as ani
-    window = [[-2, 2], [-2, 2]]
-    fig  = plt.figure(figsize=[6, 6])
+    
+    scale  = figsize/6
+    marg   = 1.1
+    s      = marg*amax(absolute(posSteps))
+    window = [[-s, s], [-s, s]]
+    
+    fig  = plt.figure(figsize=(figsize,figsize))
     ax   = plt.axes(xlim=window[0], ylim=window[1])
     dot, = ax.plot([], [], '.')
     
     dots = []
     for i in range(nBods):
-        dObj = ax.plot([], [], marker='o', color=colours[i], ls='none')[0]
+        dObj = ax.plot([], [], marker='o', markersize=scale*bods[i].ms, color=bods[i].c, ls='none')[0]
         dots.append(dObj)
         
     def ani_init():
@@ -133,10 +178,8 @@ if doVis:
         return dots
     
     def animate(i, nSteps):
-        print("\rDrawing frame {0}/{1}".format(i+1, nSteps), end='', file=outFile)
-        frame = posSteps[i]
-        xPosits = [i[0] for i in frame]
-        yPosits = [i[1] for i in frame]
+        xPosits = posSteps[i,:,0]
+        yPosits = posSteps[i,:,1]
         for dNum, dot in enumerate(dots):
             dot.set_data(xPosits[dNum], yPosits[dNum])
         return dots

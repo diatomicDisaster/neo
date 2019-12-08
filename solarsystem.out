@@ -1,0 +1,91 @@
+
+
+                   @@@@@                                                    
+                 @@@@@@@@@                         #########                
+                 @@@@@@@@@                      OOOO         ######         
+          ######   @@@@@            EEEE      OO    OO             ###      
+       #####              NN     EEE          0O     OO               ##    
+     ###         NNNN      NN     EE  EEEE     0O     OO                ##  
+   ###            NN NNN    NN     EEE          0O     OO               ### 
+  ###              NN   NNN  NN     EE   EEEE     0OOOO                 ### 
+  ###               NN     NNNNN      EEE                             ####  
+   ####              NN                        @@@@@@@              #####   
+     #####                                   @@@@@@@@@@@        #######     
+         #####                              @@@@@@@@@@@@@   #######         
+              ############                  @@@@@@@@@@@@@                   
+                                             @@@@@@@@@@@                    
+                                               @@@@@@@                      
+
+                             Wilfrid Somogyi                                
+                     github.com/diatomicDisaster/neo                        
+
+
+------------
+Begin output
+------------
+Argument '-p' given, using numba parallelised Runge-Kutta.
+
+Reading input from 'solarsystem.inp'
+Warning: No units found for position of body 1, assuming A.U.
+Warning: No units found for velocity of body 1, assuming A.U/day.
+Warning: No units found for mass of body 2, assuming mE.
+Warning: No units found for position of body 2, assuming A.U.
+Warning: No units found for velocity of body 2, assuming A.U/day.
+Warning: No units found for position of body 3, assuming A.U.
+Warning: No units found for velocity of body 3, assuming A.U/day.
+Warning: No units found for mass of body 5, assuming mE.
+Warning: No units found for mass of body 6, assuming mE.
+Warning: No units found for mass of body 7, assuming mE.
+Globalising the coordinates for Earth... 
+Finished reading input.
+
+Preparing the simulation for the following bodies:
+ - Earth with...
+   Mass = 1.00e+00 Earth Masses
+   Initial Position (x, y) = (1.00e+00, 0.00e+00) A.U.
+   Initial Velocity (x, y) = (0.00e+00, 1.72e-02) A.U. per day
+
+ - Sun with...
+   Mass = 3.33e+05 Earth Masses
+   Initial Position (x, y) = (0.00e+00, 0.00e+00) A.U.
+   Initial Velocity (x, y) = (0.00e+00, 0.00e+00) A.U. per day
+
+ - Mars with...
+   Mass = 1.07e-01 Earth Masses
+   Initial Position (x, y) = (-1.52e+00, 0.00e+00) A.U.
+   Initial Velocity (x, y) = (0.00e+00, -1.39e-02) A.U. per day
+
+ - Mercury with...
+   Mass = 5.50e-02 Earth Masses
+   Initial Position (x, y) = (0.00e+00, 3.87e-01) A.U.
+   Initial Velocity (x, y) = (-2.76e-02, 0.00e+00) A.U. per day
+
+ - Venus with...
+   Mass = 8.15e-01 Earth Masses
+   Initial Position (x, y) = (5.11e-01, -5.11e-01) A.U.
+   Initial Velocity (x, y) = (1.43e-02, 1.43e-02) A.U. per day
+
+ - Jupiter with...
+   Mass = 3.18e+02 Earth Masses
+   Initial Position (x, y) = (-3.68e+00, 3.68e+00) A.U.
+   Initial Velocity (x, y) = (-5.34e-03, -5.34e-03) A.U. per day
+
+ - Saturn with...
+   Mass = 9.52e+01 Earth Masses
+   Initial Position (x, y) = (9.59e+00, 0.00e+00) A.U.
+   Initial Velocity (x, y) = (0.00e+00, 5.59e-03) A.U. per day
+
+Setting initial conditions.
+Beginning forward time steps...
+Simulation complete, step file closed.
+
+Setting animation parameters.
+Beginning animation, with:
+  Figure size = 10.0 x 10.0 inches
+  Window in the range x, y = [-10.544267726666249, 10.544267726666249] A.U
+  Frame rate = 20 FPS
+  Interval = 50.0 ms
+  Duration = 60 s
+  1216 frames
+This might take a while...
+Animation complete.

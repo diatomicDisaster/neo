@@ -1,0 +1,56 @@
+
+
+                   @@@@@                                                    
+                 @@@@@@@@@                         #########                
+                 @@@@@@@@@                      OOOO         ######         
+          ######   @@@@@            EEEE      OO    OO             ###      
+       #####              NN     EEE          0O     OO               ##    
+     ###         NNNN      NN     EE  EEEE     0O     OO                ##  
+   ###            NN NNN    NN     EEE          0O     OO               ### 
+  ###              NN   NNN  NN     EE   EEEE     0OOOO                 ### 
+  ###               NN     NNNNN      EEE                             ####  
+   ####              NN                        @@@@@@@              #####   
+     #####                                   @@@@@@@@@@@        #######     
+         #####                              @@@@@@@@@@@@@   #######         
+              ############                  @@@@@@@@@@@@@                   
+                                             @@@@@@@@@@@                    
+                                               @@@@@@@                      
+
+                             Wilfrid Somogyi                                
+                     github.com/diatomicDisaster/neo                        
+
+
+------------
+Begin output
+------------
+Argument '-p' given, using numba parallelised Runge-Kutta.
+
+Reading input from 'binary.inp'
+Globalising the coordinates for ...None!
+Finished reading input.
+
+Preparing the simulation for the following bodies:
+ - Star 1 with...
+   Mass = 4.99e+07 Earth Masses
+   Initial Position (x, y) = (0.00e+00, -5.00e+00) A.U.
+   Initial Velocity (x, y) = (-3.33e-02, 0.00e+00) A.U. per day
+
+ - Star 2 with...
+   Mass = 4.99e+07 Earth Masses
+   Initial Position (x, y) = (0.00e+00, 5.00e+00) A.U.
+   Initial Velocity (x, y) = (3.33e-02, 0.00e+00) A.U. per day
+
+Setting initial conditions.
+Beginning forward time steps...
+Simulation complete, step file closed.
+
+Setting animation parameters.
+Beginning animation, with:
+  Figure size = 10.0 x 10.0 inches
+  Window in the range x, y = [-18.180397726107834, 18.180397726107834] A.U
+  Frame rate = 20 FPS
+  Interval = 50.0 ms
+  Duration = 60 s
+  1216 frames
+This might take a while...
+Animation complete.

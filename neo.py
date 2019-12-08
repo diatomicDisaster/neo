@@ -1,3 +1,6 @@
+# NEO is an expansible, general code for simulating Newtonian motion of
+
+
 # Public Python Libraries
 from os import path
 import sys
@@ -5,20 +8,14 @@ from numpy import array, absolute, amax, zeros, log, log10
 import argparse
 
 # orBits Libraries
-from readinput import read_input
+from readinput import input_reader
 
 int8 = '8d'
 sci2 = '.2e'
 sci8 = '.8e'
 ws6  = '      '
 ws4  = '    '
-
-#-----------------------------------------------------------------------------
-# First we ask the user for input and output files, and take various measures
-# to ensure these are in fact valid files. Once the files have been opened we
-# then call the function read_input which reads the input file and creates the
-# bodies for the simulation.
-#-----------------------------------------------------------------------------
+ws2  = '  '
 
 parse = argparse.ArgumentParser(description=
             "I wonder what brought you here? Do it like this:"
@@ -100,70 +97,87 @@ print("\n"
     "\n",
     file=outFile)
 
+print("\n------------"
+      "\nBegin output"
+      "\n------------", file=outFile)
 
 if args.p:
-    from rungekutta import make_step_par as make_step
     try:
         from numba import njit, prange
-        print("Parallel execution enabled.", file=outFile)
+        from rkpar import make_step
+        print("Argument '-p' given, using numba parallelised Runge-Kutta.", file=outFile)
     except:
         print("Error: Argument '-p' given, but cannot find numba.", file=outFile)
         sys.exit()
 else:
-    from rungekutta import make_step
-
+    from rknopar import make_step
+    print("Argument '-p' not given, will no compute in parallel.", file=outFile)
+    
 # Read the input file and create the bodies
-bods, timeStep, nSteps, doVis, figsize, scale = read_input(inFile, outFile)
+bods, timeStep, nSteps, doVis, figSize, visTime, FPS, visName \
+    = input_reader(inFile, outFile)
 
 print("\nPreparing the simulation for the following bodies:", file=outFile)
 for bod in bods:
-        print("\n - {1} with..."
+        print(  " - {1} with..."
               "\n   Mass = {2:{0}} Earth Masses"
               "\n   Initial Position (x, y) = ({3:{0}}, {4:{0}}) A.U."
-              "\n   Initial Velocity (x, y) = ({5:{0}}, {6:{0}}) A.U. per day"
+              "\n   Initial Velocity (x, y) = ({5:{0}}, {6:{0}}) A.U. per day\n"
               .format(sci2, bod.name, bod.mass, *bod.pos, *bod.vel), file=outFile)
-        
-nBods = len(bods)
 
-posSteps = zeros((nSteps, nBods, 2))
-velSteps = zeros((nSteps, nBods, 2))
-masses      = array([bod.mass for bod in bods])
+# Initialise bodies
+print("Setting initial conditions.", file=outFile)
+nBods = len(bods)
+posSteps = zeros((nSteps+1, nBods, 2))
+velSteps = zeros((nSteps+1, nBods, 2))
 posSteps[0] = array([bod.pos for bod in bods])
 velSteps[0] = array([bod.vel for bod in bods])
+masses      = array([bod.mass for bod in bods])
 
-print("\nBeginning forward time steps...", file=outFile)
 print(*[bod.name for bod in bods], file=stepFile)
-for step in range(1, nSteps):
+print("Beginning forward time steps...", file=outFile)
+for step in range(1, nSteps+1):
     posSteps[step], velSteps[step] = make_step(timeStep, nBods, masses, 
                                                posSteps[step-1], 
                                                velSteps[step-1])
     for i, bodPos in enumerate(posSteps[step]):
         bodVel = velSteps[step][i]
-        bodStr = "{2:{0}}{1}{3:{0}}{1}{4:{0}}{1}{5:{0}}".format(sci8, ws4, *bodPos, *bodVel)
+        bodStr = "{2:{0}}{1}{3:{0}}{1}{4:{0}}{1}{5:{0}}".format(sci8, ws2, *bodPos, *bodVel)
         print(bodStr, end=ws6, file=stepFile)
     print('', file=stepFile)
 
-stepFile.close()
-    
+stepFile.close()    
 print("Simulation complete, step file closed.", file=outFile)
 
-if scale == 'log':
-    posSteps = log10(posSteps)
-elif scale == 'ln':
-    posSteps = log(posSteps)
-
 if doVis:
-    print(  "Beginning animation, with:"
-          "\n  Figure size = {0} inches".format(figsize), file=outFile)
-    import matplotlib.pyplot as plt
     import matplotlib.animation as ani
-    
-    scale  = figsize/6
+    import matplotlib.pyplot as plt
+
+    print("\nSetting animation parameters.", file=outFile)
+    if FPS == 'all':
+        frameStep = 1
+        FPS = nSteps/visTime
+    else:
+        frameStep = round(nSteps/(FPS*visTime))
+        if (frameStep == 0):
+            frameStep = 1
+            
+    nFrames = int(nSteps/frameStep)    
+    scale  = figSize/6
     marg   = 1.1
     s      = marg*amax(absolute(posSteps))
     window = [[-s, s], [-s, s]]
     
-    fig  = plt.figure(figsize=(figsize,figsize))
+    print("Beginning animation, with:"
+          "\n  Figure size = {0} x {0} inches"
+          "\n  Window in the range x, y = [-{1}, {1}] A.U"
+          "\n  Frame rate = {2} FPS"
+          "\n  Interval = {3} ms"
+          "\n  Duration = {4} s"
+          "\n  {5} frames"
+          "\nThis might take a while...".format(figSize, s, FPS, 1e3/FPS, visTime, nFrames), file=outFile)
+    
+    fig  = plt.figure(figsize=(figSize,figSize))
     ax   = plt.axes(xlim=window[0], ylim=window[1])
     dot, = ax.plot([], [], '.')
     
@@ -177,18 +191,17 @@ if doVis:
             dot.set_data([], [])
         return dots
     
-    def animate(i, nSteps):
-        xPosits = posSteps[i,:,0]
-        yPosits = posSteps[i,:,1]
+    def animate(i, frameStep):
+        xPosits = posSteps[i*frameStep,:,0]
+        yPosits = posSteps[i*frameStep,:,1]
         for dNum, dot in enumerate(dots):
             dot.set_data(xPosits[dNum], yPosits[dNum])
         return dots
     
-    anim = ani.FuncAnimation(fig, animate, init_func=ani_init, fargs=(nSteps,),
-                            frames=nSteps, interval=10, blit=True)
-    anim.save('animated.mp4')
+    anim = ani.FuncAnimation(fig, animate, init_func=ani_init, fargs=(frameStep,),
+                            frames=nFrames, interval=1e3/FPS, blit=True)
+    anim.save("{0}.mp4".format(visName))
     
-    print("\nAnimation complete, closing files.", file=outFile)
-    
-outFile.close()
-inFile.close()
+    print("Animation complete.", file=outFile)
+
+print("Done!", file=sys.stdout)

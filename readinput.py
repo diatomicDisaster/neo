@@ -6,6 +6,7 @@ cases = ["BODY", "SIMULATION", "VISUAL"]
 # A dictionary of conversion factors.
 convert = {
         "au"  : 1.,
+        "AU"  : 1.,
         "m"   : 1/149597870700.,
         "km"  : 1/149597870.7,
         "mE"  : 1.,
@@ -32,14 +33,15 @@ convert = {
 class Body:
     """An object to store information about each body."""
     def __init__(self):
-        self.name  = 'Unnamed'
-        self.mass  = 0.
-        self.pos   = array([0., 0.])
-        self.vel   = array([0., 0.])
-        self.rel   = 'centre'
-        self.polar = False
-        self.c     = '#787878'
-        self.ms    = 0.1
+        self.name    = 'Unnamed'
+        self.mass    = 0.
+        self.pos     = array([0., 0.])
+        self.vel     = array([0., 0.])
+        self.rel     = 'centre'
+        self.polar   = False
+        self.c       = '#787878'
+        self.ms      = 0.1
+        self.posUnit = 'au'
         
     def de_polar(self):
         self.vR, self.vPhi = self.vel
@@ -50,8 +52,8 @@ class Body:
         self.polar = False
         
     def calc_rad(self):
-         self.rad = self.mass**(1/5)
-         self.ms  = 5*log10(self.rad+1.0)
+         self.rad = self.mass**(1/3)
+         self.ms  = 5*log10(self.rad**(1/2)+1.0)
 
 
 def count_lines(inFile, outFile):
@@ -76,7 +78,7 @@ def count_lines(inFile, outFile):
     # Begin iteratin lines, starting at line 'lineNum'
     for line_ in inFile:
         line_ = line_.rstrip('\n').strip()
-        if not line_:
+        if (not line_) or (line_[0] == '!'):
             continue
         elif line_.upper() in cases:
             print("Error: encountered new case before end of last."
@@ -87,7 +89,7 @@ def count_lines(inFile, outFile):
         else:
             bodyLines.append(line_)
 
-def read_input(inFile, outFile):
+def input_reader(inFile, outFile):
     """Control function for reading the input file, discriminates input cases.
     
     Calls the appropriate processing function for the input cases decribed in
@@ -103,28 +105,30 @@ def read_input(inFile, outFile):
     nSteps   -- the number of steps to simulate.
     """
     
-    print("\n---------------" 
-          "\nReadInput: read_input()"
-          "\n---------------"
-          "\nReading input from '{}'"
-            .format(inFile.name), file=outFile) 
+    print("\nReading input from '{}'".format(inFile.name), file=outFile) 
    
+    # Checks for each case
+    nBods = 0
     isBod = False
     isSum = False
     isVis = False
     
-    figsize=6
-    scale='none'
+    # Default values for visualisation
+    figsize = 6
+    visTime = 30
+    FPS     = 25
+    visName = 'animated'
     
     bods = []
     for line in inFile:
         # Strip trailing, leading whitespace from line, skip if empty
         line = line.rstrip('\n').strip()
-        if not line: 
+        if (not line) or (line[0] == '!'): 
             continue
         
-        # Read a body if line begins body definition
+        # Body case
         if line == "BODY":
+            nBods += 1
             isBod = True
             bodLines = count_lines(inFile, outFile)
             # Create body and begin reading the lines
@@ -135,96 +139,178 @@ def read_input(inFile, outFile):
                     bod.polar = True
                 else:
                     keyword = line.split(sep=':')[0].strip()
-                    line    = line.split(sep=':')[1].split()
                     if keyword in ["Name", "name"]:
-                        bod.name = line[0]
-                    elif keyword in ["Mass", "mass"]:
-                        if len(line) == 1:
-                            bod.mass = float(line[0]) * convert['mE']
-                            print("Warning: No units found for mass of {}, assuming mE."
-                                  .format(bod.name), file = outFile)
-                        else:
-                            bod.mass = float(line[0]) * convert[line[1]]
-                    elif keyword in ["Position", "position"]:
-                        if len(line) == 2:
-                            # We have to use 'eval' in case the value contains 'pi'
-                            bod.pos = array([eval(i) for i in line], dtype='float64')
-                        elif len(line) == 3:
-                            bod.pos = convert[line[2]]*array([eval(i) for i in line[:2]], dtype='float64')
-                    elif keyword in ["Velocity", "velocity"]:
-                        #if line[0] in ["Stable", "stable"]:
-                        if len(line) == 2:
-                            bod.vel = array([eval(i) for i in line], dtype='float64')
-                        elif len(line) == 3:
-                            units = line[2].split(sep='/')
-                            bod.vel = (convert[units[0]]/convert[units[1]]) \
-                                        *array([eval(i) for i in line[:2]], dtype='float64')
-                    elif keyword in ["Relative", "relative"]:
-                        bod.rel = line[0]
-                    elif keyword in ["Colour", "colour", "Color", "color"]:
-                        bod.c = line[0]
+                        bod.name = line.split(sep=':')[1].strip()
                     else:
-                        print("Error: Unrecognised keyword in body decleration. " 
-                              "\n  Check your input file!", file = outFile)
-                        sys.exit()
-            # If polar coordinates were declared then convert to Cartesian
+                        line    = line.split(sep=':')[1].split()
+                        if keyword in ["Name", "name"]:
+                            bod.name = line[0]
+                        elif keyword in ["Mass", "mass"]:
+                            bod.mass = float(line[0])
+                            if len(line) == 1:
+                                print("Warning: No units found for mass "
+                                      "of body {0}, assuming mE."
+                                      .format(nBods), file = outFile)
+                            elif len(line) == 2:
+                                bod.mass *= convert[line[1]]
+                            else:
+                                print("Error: Invalid number of arguments "
+                                      "given for mass of body {0}."
+                                      "\n  Check your input file!"
+                                      .format(nBods), file=outFile)
+                                sys.exit()
+                        elif keyword in ["Position", "position"]:
+                            bod.pos = array([eval(i) for i in line[:2]], 
+                                            dtype='float64')
+                            if len(line) == 2:
+                                print("Warning: No units found for position "
+                                      "of body {0}, assuming A.U."
+                                      .format(nBods), file=outFile)
+                            elif len(line) == 3:
+                                bod.posUnit = line[2]
+                            else:
+                                print("Error: Invalid number of arguments "
+                                      "given for position of body {0}."
+                                      "\n  Check your input file!"
+                                      .format(nBods), file=outFile)
+                                sys.exit()
+                        elif keyword in ["Velocity", "velocity"]:
+                            bod.vel = array([eval(i) for i in line[:2]], 
+                                            dtype='float64')
+                            if len(line) == 2:
+                                print("Warning: No units found for velocity "
+                                      "of body {0}, assuming A.U/day."
+                                      .format(nBods), file=outFile)
+                            elif len(line) == 3:
+                                units = line[2].split(sep='/')
+                                bod.vel *= convert[units[0]]/convert[units[1]]
+                            else:
+                                print("Error: Invalid number of arguments "
+                                      "given for velocity of body {0}."
+                                      "\n  Check your input file!"
+                                      .format(nBods), file=outFile)
+                                sys.exit()
+                        elif keyword in ["Relative", "relative"]:
+                            if len(line) == 1:
+                                bod.rel = line[0]
+                            else:
+                                print("Error: Invalid number of arguments "
+                                      "given for colour of body {0}."
+                                      "\n  Check your input file!"
+                                      .format(nBods), file=outFile)
+                                sys.exit()
+                        elif keyword in ["Colour", "colour", "Color", "color"]:
+                            if len(line) == 1:
+                                bod.c = line[0]
+                            else:
+                                print("Error: Invalid number of arguments "
+                                      "given for colour of body {0}."
+                                      "\n  Check your input file!"
+                                      .format(nBods), file=outFile)
+                                sys.exit()
+                        else:
+                            print("Error: Unrecognised keyword in body decleration. " 
+                                  "\n  Check your input file!", file = outFile)
+                            sys.exit()
+             
+            # If polar coordinates were declared then convert to Cartesian.
             if bod.polar:
-                bod.de_polar() 
+                bod.pos[0] = bod.pos[0]*convert[bod.posUnit] 
+                bod.de_polar()
+            else:
+                bod.pos = bod.pos*convert[bod.posUnit]
             bods.append(bod)
+            
+            # Check mass of body is not zero.
+            if bod.mass == 0.:
+                print("Error: Mass of body {0} is equal to 0."
+                      "\n  Check your input file!"
+                      .format(bod.name), file=outFile)
+                sys.exit()
         
-        # If simulation decleration, retrive parameters.
+        # Simulation case
         elif line == "SIMULATION":
-            isSim = True
+            isSim      = True
+            
+            isSteps    = False
+            isDuration = False
+            isNSteps   = False
+            
             simLines = count_lines(inFile, outFile)
             for line_ in simLines:
                 keyword = line_.split(sep=':')[0].strip()
                 val     = line_.split(sep=':')[1].split()
-                if len(val) != 2:
-                    print("Error: Not enough parameters."
-                          "\n  Do time step and duration both have units?", 
-                          file=outFile)
+                if (keyword in ["dt", "Duration", "duration"]) \
+                and (len(val) != 2):
+                    print("Error: Not enough parameters for keyword in 'SIMULATION'."
+                          "\n  Does {0} have units?"
+                          .format(keyword), file=outFile)
                     sys.exit()
                 if keyword == "dt":
                     timeStep = float(val[0]) * convert[val[1]]
+                    isSteps  = True
                 elif keyword in ["Duration", "duration"]:
-                    duration = float(val[0]) * convert[val[1]]
-                    nSteps   = round(duration/timeStep)
+                    duration   = float(val[0]) * convert[val[1]]
+                    isDuration = True
+                elif keyword in ["Steps", "steps"]:
+                    nSteps = int(val[0])
+                    isNSteps = True
                 else:
-                    print("Error: Unrecognised keyword in simulation decleration."
+                    print("Error: Unrecognised keyword in 'SIMULATION'."
                           "\n  Check your input file!", file=outFile)
                     sys.exit()
+            
+            # Some parameters conflict and are mutually exclusive
+            if (isSteps and isDuration and isNSteps):
+                print("Error: 'dt', 'duration' and 'steps' are all defined "
+                      "for SIMULATION." 
+                      "\n  Please choose only two.", file=outFile)
+                sys.exit()
+            elif (isDuration and isNSteps) and not isSteps:
+                timeStep = duration/nSteps
+            elif (isSteps and isDuration) and not isNSteps:
+                nSteps = int(duration/timeStep)
+            elif (isSteps and isNSteps) and not isDuration:
+                pass
+            else:
+                print("Error: At least one keyword is missing from 'SIMULATION'."
+                      "\n  Check your input file!", file=outFile)
+                sys.exit()
+                
         
+        # Visual case
         elif line == "VISUAL":
             isVis = True
             visLines = count_lines(inFile, outFile)
             for line_ in visLines:
                 keyword = line_.split(sep=':')[0].strip()
                 val     = line_.split(sep=':')[1].strip()
-                print(val)
                 if keyword in ["Size", "size"]:
                     figsize = float(val)
-                elif keyword in ["Scale", "scale"]:
-                    if val in ["Log", "log", "Log10", "log10"]:
-                        scale = "log"
-                    elif val in ["ln", "Natural", "natural"]:
-                        scale = "ln"
+                elif keyword in ["Time", "time"]:
+                    visTime = int(val)
+                elif keyword in ["FPS", "fps"]:
+                    if val in ["All", "all"]:
+                        FPS = 'all'
                     else:
-                        print("Error: Unrecognised value for scale in visual."
-                            "\n  Check your input file!", file=outFile)
+                        FPS = int(val)
+                elif keyword in ["File", "file"]:
+                    visName = val
                 else:
                     print("Error: Unrecognised keyword in visual decleration."
                          "\n  Check your input file!", file=outFile)
                     sys.exit()
-            
+        
+        # If not valid case, raise error  
         else:
-            print("Error: Unrecognised flag in input file."
-                  "\n  Check your input file!", file=outFile)
+            print("Error: Unrecognised flag {0}."
+                  "\n  Check your input file!".format(line), file=outFile)
             sys.exit()
     
     exit = False
     for i, case in enumerate([isBod, isSim]):
         if not case:
-            print("Error: No {} case found."
+            print("Error: No {} case found, but is required."
                   "\n  Is it in the input file?"
                 .format(cases[i]), file=outFile)
             exit = True 
@@ -234,6 +320,7 @@ def read_input(inFile, outFile):
     print("Globalising the coordinates for ", end='', file=outFile)
     none = True
     for bod in bods:
+        # Also calculate the body's radius and marker size
         bod.calc_rad()
         while bod.rel != 'centre':
             none = False
@@ -252,6 +339,7 @@ def read_input(inFile, outFile):
     if none:
         print("...None!", file=outFile)
     else:
-        print()
+        print(file=outFile)
                     
-    return bods, timeStep, nSteps, isVis, figsize, scale
+    print("Finished reading input.", file=outFile)
+    return bods, timeStep, nSteps, isVis, figsize, visTime, FPS, visName

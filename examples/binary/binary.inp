@@ -1,0 +1,27 @@
+BODY
+name: Star 1 
+mass: 150 mS
+position: 0 -5 au
+velocity: -5*2*pi/942.25 0 au/dy
+colour: #ffd500
+END
+
+BODY
+name: Star 2
+mass: 150 mS
+position: 0 5 au
+velocity: 5*2*pi/942.25 0 au/dy
+colour: #27e8ff
+END
+
+SIMULATION
+dt: 0.5 day
+duration: 50 years
+END
+
+VISUAL
+time: 60
+FPS: 20
+size: 10
+file: binary
+END

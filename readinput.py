@@ -143,9 +143,7 @@ def input_reader(inFile, outFile):
                         bod.name = line.split(sep=':')[1].strip()
                     else:
                         line    = line.split(sep=':')[1].split()
-                        if keyword in ["Name", "name"]:
-                            bod.name = line[0]
-                        elif keyword in ["Mass", "mass"]:
+                        if keyword in ["Mass", "mass"]:
                             bod.mass = float(line[0])
                             if len(line) == 1:
                                 print("Warning: No units found for mass "

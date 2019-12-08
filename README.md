@@ -84,7 +84,7 @@ The program provides updates and writes error messages to the [output file speci
 python neo.py -i myinput.inp -o myoutput.out
 ```
 
-In addition to the output file, the program creates a ".steps" file. This file contains the position and velocity of each body at every time step. The first column of each row in the file gives the time step number, the next four columns give the x, y, v_x, v_y values for the first body, and each four columns thereafter represent further bodies. The order of the bodies is given at the top of the ".steps" file for reference.
+In addition to the output file, the program creates a ".steps" file. This file contains the position and velocity of each body at every time step. The first column of each row in the file gives the time step number, the next four columns give the x, y, v<sub>x</sub>, v<sub>y</sub> values for the first body, and each four columns thereafter represent further bodies. The order of the bodies is given at the top of the ".steps" file for reference.
 
 #### Visualisation
 An ".mp4" animation can also be rendered using [`matplotlib.animation`](https://matplotlib.org/3.1.1/api/animation_api.html) if the input file contains the case `VISUAL`, ended with the usual `END` statement. A range of keyword arguments can be given to specify the animation.

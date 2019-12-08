@@ -58,12 +58,13 @@ colour: #0099ff
 END
 ```
 #### Defining the simulation
-The flag `SIMULATION` is used to tell the program that subsequent lines define the paramters for the simulation, and the flag `END` is used to terminate the simulation section. There are two parameters required, both have units:
+The flag `SIMULATION` is used to tell the program that subsequent lines define the paramters for the simulation, and the flag `END` is used to terminate the simulation section. There are three keyword arguments available to define the simulation, exactly two must be given, and the third is automatically inferred. If the time step `dt` and the `duration` of the simulation are given, then the number of steps to be iterated `duration`/`dt` is calculated. If the time step `dt` and the number of `steps` are given, then the duration of the simulation `dt` x `steps` is calculated. Lastly, if the `duration` and number of `steps` is given, then the time step `duration`/`steps` is calculated.
 
 |`keyword`|Description|
 |:---:|:---|
 |`dt`|The time step for the simulation, specified with a value and units. Currently accepted units are: days (`days` or `dy`), years (`years` or `yr`), hours (`hours`, `hrs`, or `hr`) and seconds (`seconds`, `secs`, or `s`). The simulation is accurate to fourth order in time.
 |`duration`|The duration of the simulation, specified with a value and units - as above.|
+|`steps`| The number of time steps to perform the simulation for. |
 
 An example simulation with a timestep of 12 hours and a duration of 182.5 days is shown below.
 
@@ -75,7 +76,7 @@ END
 ```
 
 ### Output
-The program provides updates and writes error messages to the [output file specified at runtime](#example-input).
+The program provides updates and writes error messages to the [output file specified at runtime](#example-input). If no output file is provided, the program will ask before writing output to the console. If an output file is provided but it does not exist, the program will automatically create the output file.
 
 ```
 python neo.py -i myinput.inp -o myoutput.out
@@ -84,4 +85,13 @@ python neo.py -i myinput.inp -o myoutput.out
 In addition to the output file, the program creates a ".steps" file. This file contains the position and velocity of each body at every time step. The first column of each row in the file gives the time step number, the next four columns give the x, y, v_x, v_y values for the first body, and each four columns thereafter represent further bodies. The order of the bodies is given at the top of the ".steps" file for reference.
 
 #### Visualisation
-An ".mp4" animation can also be rendered using [`matplotlib.animation`](https://matplotlib.org/3.1.1/api/animation_api.html) if the input file contains the flag `VISUAL`. It has one keyword value, `size` which determines the size (in inches) of the `matplotlib` render (square plot). This is poorly implemented at present and this is not advised for simulations with > 1000 time steps.
+An ".mp4" animation can also be rendered using [`matplotlib.animation`](https://matplotlib.org/3.1.1/api/animation_api.html) if the input file contains the case `VISUAL`, ended with the usual `END` statement. A range of keyword arguments can be given to specify the animation.
+
+|`keyword`|Description|
+|:---:|:---:|
+|`size`|The size of the animation image in inches. The image is always square so only one number should be given. The default if no value is given is 6 inches.|
+|`time`|The runtime of the final animation in seconds. The default is 30 seconds.|
+|`FPS` |The framerate (per second) for the animation, alternatively the value `all` can be given, in which case every step calculated in the simulation is shown at the requisite framrate for the given value of `time`. The default `FPS` value is 25 frames per second.|
+|`file`|The prefix of the file to which the animation should be saved. If none is given, the default is `animated`, such that the file has the name `animated.mp4`.|
+
+When `FPS` is not `all` only every n^th set of positions calculated in the simulation are displayed at a rate of `FPS` per second, where n is the nearest integer to the value `steps`/(`FPS`x`time`). If the combination of number of steps for the simulation, the frame rate for the animation and the runtime of the animation gives `steps`/(`FPS`x`time`) < 1, then n = 1, equivalent to `FPS: all`.

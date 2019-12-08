@@ -31,6 +31,8 @@ If the output file does not exist the program will create it automatically, if n
 
 The final command line argument is an optional flag `-p`. When used, the computation of gravitational interactions at each time step is performed in parallel using [Numba](http://numba.pydata.org/).
 
+A collection of example input, output and step files are found in the `/examples` directory, including a simulation of analogs for the first six planets in the solar system, and a ficticious binary star system. 
+
 #### Defining Bodies for the Simulation
 The flag `BODY` is used to tell the program that the subsequent lines define a new body for the simulation, the end of the body is marked with the flag `END`. Parameters are specified using a keyword, followed by a colon. The following parameters are available (required ones indicated by an asterisk):
 
@@ -88,7 +90,7 @@ In addition to the output file, the program creates a ".steps" file. This file c
 An ".mp4" animation can also be rendered using [`matplotlib.animation`](https://matplotlib.org/3.1.1/api/animation_api.html) if the input file contains the case `VISUAL`, ended with the usual `END` statement. A range of keyword arguments can be given to specify the animation.
 
 |`keyword`|Description|
-|:---:|:---:|
+|:---:|:---|
 |`size`|The size of the animation image in inches. The image is always square so only one number should be given. The default if no value is given is 6 inches.|
 |`time`|The runtime of the final animation in seconds. The default is 30 seconds.|
 |`FPS` |The framerate (per second) for the animation, alternatively the value `all` can be given, in which case every step calculated in the simulation is shown at the requisite framrate for the given value of `time`. The default `FPS` value is 25 frames per second.|

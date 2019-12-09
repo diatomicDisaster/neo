@@ -5,12 +5,12 @@ NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "o
 ## Getting Started
 ### Installing
 
-1. To download the files directly, go to https://github.com/diatomicDisaster/Planets, click the green button on the right hand side "Clone or Download" and select "Download ZIP".
+1. To download the files directly, go to https://github.com/diatomicDisaster/neo, click the green button on the right hand side "Clone or Download" and select "Download ZIP".
 
 2. To install using git:
 
 ```
-git clone https://github.com/diatomicDisaster/Planets.git
+git clone https://github.com/diatomicDisaster/neo.git
 ```
 ### Dependencies
 3. Only the `numpy` library is required. Additional libraries are optionally required for full functionality: `matplotlib` if your input file contains the `VISUAL` flag for animating the simulation ([more info](#visualisation)) and `numba` if the program is called with the command line argument `-p`, which enables parallel computing. These libraries [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).

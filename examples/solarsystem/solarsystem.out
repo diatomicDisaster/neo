@@ -25,7 +25,7 @@ Begin output
 ------------
 Argument '-p' given, using numba parallelised Runge-Kutta.
 
-Reading input from 'solarsystem.inp'
+Reading input from 'examples/solarsystem/solarsystem.inp'
 Warning: No units found for position of body 1, assuming A.U.
 Warning: No units found for velocity of body 1, assuming A.U/day.
 Warning: No units found for mass of body 2, assuming mE.

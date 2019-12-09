@@ -7,7 +7,7 @@ NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "o
 
 1. To download the files directly, go to https://github.com/diatomicDisaster/neo, click the green button on the right hand side "Clone or Download" and select "Download ZIP".
 
-2. To install using git:
+2. To install from the command line, using git:
 
 ```
 git clone https://github.com/diatomicDisaster/neo.git

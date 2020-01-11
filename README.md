@@ -1,6 +1,6 @@
-# **NEO V0.2**
+# **NEO v1.0**
 
-NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "on-the-fly" using the fourth-order Runge-Kutta time integration method. The bodies and simulation parameters are defined systematically in an '.inp' input file using a range of parameters, an example is [given below](#example-input).
+**NEO** (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "on-the-fly" using the fourth-order Runge-Kutta time integration method. The bodies and simulation parameters are defined systematically in an '.inp' input file using a range of parameters, an example is [given below](#example-input).
 
 ## Getting Started
 ### Installing

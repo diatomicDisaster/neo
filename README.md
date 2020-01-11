@@ -13,7 +13,7 @@ NEO (**NE**wtonian **O**rbits) is a simulation of Newtonian gravity performed "o
 git clone https://github.com/diatomicDisaster/neo.git
 ```
 ### Dependencies
-3. Only the `numpy` library is required. Additional libraries are optionally required for full functionality: `matplotlib` if your input file contains the `VISUAL` flag for animating the simulation ([more info](#visualisation)) and `numba` if the program is called with the command line argument `-p`, which enables parallel computing. These libraries [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).
+3. Only the `numpy` library is essential, however additional libraries are optionally required for full functionality; `matplotlib` if your input file contains the `VISUAL` flag for animating the simulation ([more info](#visualisation)) and `numba` if the program is called with the command line argument `-p`, which enables parallel computing. These libraries [can be installed using your chosen package manager](https://packaging.python.org/tutorials/installing-packages/).
 
 ### Example Input
 

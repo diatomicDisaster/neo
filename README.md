@@ -30,7 +30,7 @@ python neo.py -i myinput.inp -o myoutput.out
 ```
 If the output file does not exist the program will create it automatically, if no output file is specified then the option will be available to write output to the console. In addition to the output file where messages are written, the program also creates a ".steps" file, which contains the position and velocity of each body at each time step.
 
-The final command line argument is an optional flag `-p`. When used, the computation of gravitational interactions at each time step is performed in parallel using [Numba](http://numba.pydata.org/).
+The final command line argument is an optional flag `-p`. When used, the computation of gravitational interactions at each time step is performed in parallel using [Numba](http://numba.pydata.org/). This is useful for speeding up the calculation when the simulation contains a large number of bodies.
 
 A collection of example input, output and step files are found in the `/examples` directory, including a simulation of analogs for the first six planets in the solar system, and a ficticious binary star system. 
 
@@ -101,4 +101,4 @@ When `FPS` is not `all` only every n<sup>th</sup> set of positions calculated in
 
 markersize = 5 log(\[M/M<sub>🜨</sub>\]<sup>1/5</sup>)
   
-Which is appropriate for bodies with mass on the order of those found in the solar system (approx. 0.001 M<sub>🜨</sub> - 100,000 M<sub>🜨</sub>). A future implementation is planned to adjust this equation dynamically depending on the range of masses specified in the input file. To adjust it manually, go to the `calc_rad()` function of the `Body` class in `readinput.py`, broadly the prefactor in front of the log controls the absolute size of the markers while the order of the root controls the apparent difference in size between the smallest and largest objects.
+Which is appropriate for bodies with mass on the order of those found in the solar system (approx. 0.001 M<sub>🜨</sub> - 100,000 M<sub>🜨</sub>). To adjust it manually, go to the `calc_rad()` function of the `Body` class in `readinput.py`, broadly the prefactor in front of the log controls the absolute size of the markers while the order of the root controls the apparent difference in size between the smallest and largest objects.
